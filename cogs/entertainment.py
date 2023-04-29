@@ -21,7 +21,6 @@ class Entertainment(commands.Cog):
     @app_commands.command(name='silly', description='Send a random silly gif')
     async def silly(self, interaction: discord.Interaction):
         try:
-            print("Called")
             await interaction.channel.send(random.choice(random_silly_gifs));
             return await interaction.response.send_message('SILLY :33', ephemeral=True)
         except Exception as e:
