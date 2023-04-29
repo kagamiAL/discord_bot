@@ -89,7 +89,7 @@ async def handle_mute_loop(ctx, member, interval_minutes: int, mute_duration: in
     server_data_object.set_loop_muted(member, True);
     embed_data = await send_embed_to_channel(ctx, member, STARTING_MUTE_STATE);
     await modify_embed_countdown(embed_data, mute_duration, STARTING_MUTE_STATE);
-    await handle_mute_state(ctx, member, is_muted=STARTING_MUTE_STATE, time_out_duration=mute_duration);
+    await handle_mute_state(ctx, member, is_muted=STARTING_MUTE_STATE, time_out_duration=(mute_duration if STARTING_MUTE_STATE else interval_minutes));
     print_report("Loop mute has started")
     while (server_data_object.is_loop_muted(member)):
             if (not server_data_object.is_currently_muted(member)):
