@@ -79,7 +79,6 @@ async def modify_embed_countdown(embed_data, time_left: int, is_muted: bool):
 
 #--starts mute loop
 async def handle_mute_loop(ctx, member, interval_minutes: int, mute_duration: int, immediate_mute: str):
-    print(immediate_mute)
     global embed_data;
     SLEEP_INTERVAL = 60;
     STARTING_MUTE_STATE = (True if immediate_mute.lower() == 'true' else False);
