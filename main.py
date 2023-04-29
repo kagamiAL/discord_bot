@@ -1,5 +1,6 @@
 import discord
 import asyncio
+from global_data import print_report
 from discord.ext import commands;
 import os
 from dotenv import load_dotenv
@@ -17,7 +18,7 @@ async def on_message(message):
     if (message.author == bot.user):
         return;
     user_message: str = message.content;
-    print(f'User {message.author} sent a message: {user_message}')
+    print_report(f'User {message.author} sent a message: {user_message}')
     await bot.process_commands(message)
 
 load_dotenv(encoding='utf-16')

@@ -1,4 +1,5 @@
 import discord
+from datetime import datetime
 
 guild_ids = [discord.Object(id=916706804652732416)];
 __server_data   = {};
@@ -44,3 +45,10 @@ def get_server_data(server_id):
     if (not server_id in __server_data):
         __server_data[server_id] = ServerDataObject(server_id);
     return __server_data[server_id];
+
+def get_current_date_time() -> str:
+    return datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ': ';
+
+def print_report(message: str):
+    print(get_current_date_time() + message);
+    return;
