@@ -9,12 +9,20 @@ class Sync(commands.Cog):
     @commands.is_owner()
     async def sync(self,
     ctx: Context, guilds: Greedy[discord.Object], spec: Optional[Literal["~", "*", "^"]] = None) -> None:
+        global synced;
         if not guilds:
             if spec == "~":
                 synced = await ctx.bot.tree.sync(guild=ctx.guild)
             elif spec == "*":
-                ctx.bot.tree.copy_global_to(guild=ctx.guild)
-                synced = await ctx.bot.tree.sync(guild=ctx.guild)
+                try:
+                    ctx.bot.tree.copy_global_to(guild=ctx.guild)
+                except Exception as e:
+                    print(e)
+                print("Sucessfully copied global")
+                try:
+                    synced = await ctx.bot.tree.sync(guild=ctx.guild)
+                except Exception as e:
+                    print(e)
             elif spec == "^":
                 ctx.bot.tree.clear_commands(guild=ctx.guild)
                 await ctx.bot.tree.sync(guild=ctx.guild)
