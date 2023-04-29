@@ -78,7 +78,7 @@ async def modify_embed_countdown(embed_data, time_left: int, is_muted: bool):
         print_report(f'Error editing Embed: {e}')
 
 #--starts mute loop
-async def handle_mute_loop(ctx, member, interval_minutes: int, mute_duration: int, immediate_mute: str):
+async def handle_mute_loop(ctx: discord.Interaction, member, interval_minutes: int, mute_duration: int, immediate_mute: str):
     global embed_data;
     SLEEP_INTERVAL = 60;
     STARTING_MUTE_STATE = (True if immediate_mute.lower() == 'true' else False);
@@ -89,6 +89,7 @@ async def handle_mute_loop(ctx, member, interval_minutes: int, mute_duration: in
     server_data_object.set_loop_muted(member, True);
     embed_data = await send_embed_to_channel(ctx, member, STARTING_MUTE_STATE);
     await modify_embed_countdown(embed_data, STARTING_TIME_DURATION, STARTING_MUTE_STATE);
+    await ctx.response.send_message("Loop mute started", ephemeral=True);
     await handle_mute_state(ctx, member, is_muted=STARTING_MUTE_STATE, time_out_duration=STARTING_TIME_DURATION);
     while (server_data_object.is_loop_muted(member)):
             if (not server_data_object.is_currently_muted(member)):
@@ -112,21 +113,30 @@ async def handle_mute_loop(ctx, member, interval_minutes: int, mute_duration: in
             running_loop.create_task(modify_embed_countdown(embed_data, (mute_duration if server_data_object.is_currently_muted(member) else interval_minutes) - time_passed, server_data_object.is_currently_muted(member)));
 
 class Moderation(commands.Cog):
-    @commands.command()
-    @commands.has_permissions(manage_roles=True)
-    async def loop_mute(self, ctx, member: discord.Member, interval_minutes: int, mute_duration: int, immediate_mute: str):
-        if (not get_server_data(ctx.guild.id).is_loop_muted(member)):
-            if (member.roles[-1] >= ctx.guild.get_member(self.bot.user.id).roles[-1]):
-                return print_report("Attempt to mute a user with a higher role than the bot")
-            return await handle_mute_loop(ctx, member, interval_minutes, mute_duration, immediate_mute);
+    @app_commands.command(name='loop_mute', description='Loop mutes user')
+    async def loop_mute(self, ctx: discord.Interaction, member: discord.Member, interval_minutes: int, mute_duration: int, immediate_mute: str):
+        try:
+            if (not ctx.user.guild_permissions.manage_roles):
+                return await ctx.response.send_message("You do not have the required permissions to use this command")
+            if (not get_server_data(ctx.guild.id).is_loop_muted(member)):
+                if (member.roles[-1] >= ctx.guild.get_member(self.bot.user.id).roles[-1]):
+                    return print_report("Attempt to mute a user with a higher role than the bot")
+                return await handle_mute_loop(ctx, member, interval_minutes, mute_duration, immediate_mute);
+            return await ctx.response.send_message("Already loop-muted")
+        except Exception as e:
+            print_report(f'Error in loop_mute: {e}')
         return
 
     @commands.command()
     @commands.has_permissions(manage_roles=True)
-    async def un_loop_mute(self, ctx, member: discord.Member):
+    async def un_loop_mute(self, ctx: discord.Message, member: discord.Member):
         server_data_object = get_server_data(ctx.guild.id);
         if (server_data_object.is_loop_muted(member)):
             server_data_object.set_loop_muted(member, False);
+        try:
+            await ctx.author.send(f"Sucessfully un-loopmuted user {member.name}");
+        except Exception as e:
+            print(e);
     
     def __init__(self, bot):
         self.bot = bot;
