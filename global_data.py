@@ -27,6 +27,16 @@ class ServerDataObject:
             return True
         return False
     
+    def set_time_remaining(self, member, time_remaining) -> int:
+        if (member.id in self.__loop_muted):
+            print(time_remaining)
+            self.__loop_muted[member.id]['time_remaining'] = time_remaining;
+            return time_remaining;
+    
+    def get_time_remaining(self, member) -> int:
+        if (member.id in self.__loop_muted):
+            return self.__loop_muted[member.id]['time_remaining'];  
+    
     def is_currently_muted(self, member) -> bool:
         if (member.id in self.__loop_muted):
             return self.__loop_muted[member.id]['currently_muted'];

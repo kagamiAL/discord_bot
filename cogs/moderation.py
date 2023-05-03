@@ -86,31 +86,31 @@ async def handle_mute_loop(ctx: discord.Interaction, member, interval_minutes: i
     running_loop = asyncio.get_running_loop();
     server_data_object = get_server_data(ctx.guild.id);
     time_passed: int    = 0;
-    server_data_object.set_loop_muted(member, True);
+    loop_mute_data      =  server_data_object.set_loop_muted(member, True);
     embed_data = await send_embed_to_channel(ctx, member, STARTING_MUTE_STATE);
-    await modify_embed_countdown(embed_data, STARTING_TIME_DURATION, STARTING_MUTE_STATE);
+    await modify_embed_countdown(embed_data, server_data_object.set_time_remaining(member, STARTING_TIME_DURATION), STARTING_MUTE_STATE);
     await ctx.response.send_message("Loop mute started", ephemeral=True);
     await handle_mute_state(ctx, member, is_muted=STARTING_MUTE_STATE, time_out_duration=STARTING_TIME_DURATION);
-    while (server_data_object.is_loop_muted(member)):
+    while (server_data_object.is_loop_muted(member, loop_mute_data)):
             if (not server_data_object.is_currently_muted(member)):
                 if (time_passed >= interval_minutes):
                     print_report("Currently muting...")
                     embed_data = await send_embed_to_channel(ctx, member, True);
-                    await modify_embed_countdown(embed_data, mute_duration, True);
+                    await modify_embed_countdown(embed_data, server_data_object.set_time_remaining(member, mute_duration), True);
                     await handle_mute_state(ctx, member, is_muted=True, time_out_duration=mute_duration);
                     time_passed = 0;
                     print_report("Sucessfully muted")
             elif (time_passed >= mute_duration):
                 print_report("Currently unmuting...")
                 embed_data = await send_embed_to_channel(ctx, member, False);
-                await modify_embed_countdown(embed_data, interval_minutes, False);
+                await modify_embed_countdown(embed_data, server_data_object.set_time_remaining(member, interval_minutes), False);
                 await handle_mute_state(ctx, member, is_muted=False, time_out_duration=interval_minutes);
                 time_passed = 0;
                 print_report("Successfully unmuted")
             await asyncio.sleep(SLEEP_INTERVAL);
             time_passed += 1;
             print_report(f"Time passed: {time_passed} minutes")
-            running_loop.create_task(modify_embed_countdown(embed_data, (mute_duration if server_data_object.is_currently_muted(member) else interval_minutes) - time_passed, server_data_object.is_currently_muted(member)));
+            running_loop.create_task(modify_embed_countdown(embed_data, server_data_object.set_time_remaining(member, (mute_duration if server_data_object.is_currently_muted(member) else interval_minutes) - time_passed), server_data_object.is_currently_muted(member)));
 
 class Moderation(commands.Cog):
     @app_commands.command(name='loop_mute', description='Loop mutes user')
@@ -128,6 +128,13 @@ class Moderation(commands.Cog):
         except Exception as e:
             print_report(f'Error in loop_mute: {e}')
         return
+
+    @app_commands.command(name="get_mute_status", description="Returns the mute status of a user")
+    async def get_mute_status(self, ctx: discord.Interaction, member: discord.Member):
+        server_data_object = get_server_data(ctx.guild.id);
+        if (server_data_object.is_loop_muted(member)):
+            return await ctx.response.send_message("Time until {0} is {1}: {2} minutes".format(member.name, ('unmuted' if server_data_object.is_currently_muted(member) else "muted"), server_data_object.get_time_remaining(member)));
+        return await ctx.response.send_message("User is not loop-muted")
 
     @commands.command()
     @commands.has_permissions(manage_roles=True)
