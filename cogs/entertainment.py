@@ -17,6 +17,17 @@ random_silly_gifs = [
     'https://media.tenor.com/KhEOlkmMEJ4AAAAM/t-cat-draker-cat.gif',
 ]
 
+nerd_gifs = [
+    'https://media.tenor.com/SRX8X6DNF6QAAAAd/nerd-nerd-emoji.gif',
+    'https://media.tenor.com/DuThn51FjPcAAAAC/nerd-emoji-nerd.gif'
+]
+
+async def find_latest_message(user_id, channel):
+    async for message in channel.history(limit=100):
+        if message.author.id == user_id:
+            return message
+    return None
+
 class Entertainment(commands.Cog):
     @app_commands.command(name='silly', description='Send a random silly gif')
     async def silly(self, interaction: discord.Interaction):
@@ -26,6 +37,31 @@ class Entertainment(commands.Cog):
         except Exception as e:
             print_report(f'Error sending silly gif: {e}')
         
+    @app_commands.command(name='nerd_reply', description='Reply to with nerd')
+    async def nerd_reply(self, interaction: discord.Interaction, member: discord.Member):
+        try:
+            latest_message: discord.Message  = await find_latest_message(member.id, interaction.channel)
+            if (latest_message):
+                await latest_message.reply(random.choice(nerd_gifs));
+                await interaction.response.send_message('Replied to nerd', ephemeral=True)
+        except Exception as e:
+            print_report(f'Error sending nerd gif: {e}')
+    
+    @app_commands.command(name='speak', description='Speak as the bot')
+    async def speak(self, ctx: discord.Interaction, message: str):
+        try:
+            application_info = await self.bot.application_info()
+            owner = application_info.owner
+            if (ctx.user.id != owner.id):
+                return await ctx.response.send_message("You do not have the required permissions to use this command")
+            await ctx.channel.send(message);
+            await ctx.response.send_message("Spoke", ephemeral=True)
+        except Exception as e:
+            print_report(f'Error speaking: {e}')
+            
+    def __init__(self, bot):
+        self.bot = bot
+    
 async def setup(bot):
     await bot.add_cog(Entertainment(bot));
     print("Entertainment cog loaded")
