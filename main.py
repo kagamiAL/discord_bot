@@ -24,8 +24,6 @@ async def on_ready():
 async def on_message(message):
     if (message.author == bot.user):
         return;
-    user_message: str = message.content;
-    print_report(f'User {message.author} sent a message: {user_message}')
     await bot.process_commands(message)
     await delete_messages_if_muted(message)
 
