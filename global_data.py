@@ -15,18 +15,17 @@ class ServerDataObject:
             self.__loop_muted[member.id] = {
                     'currently_muted': False,
                     'roles': member.roles[1:],
+                    'time_remaining': 0,
                 };
             return self.__loop_muted[member.id];
         del self.__loop_muted[member.id];
     
-    def is_loop_muted(self, member) -> bool:
+    def is_loop_muted(self, member, table_data=None) -> bool:
         if (member.id in self.__loop_muted):
+            if (table_data and table_data != self.__loop_muted[member.id]):
+                return False;
             return True
         return False
-    
-    def get_muted_original_roles(self, member):
-        if (member.id in self.__loop_muted):
-            return self.__loop_muted[member.id]['roles'];
     
     def is_currently_muted(self, member) -> bool:
         if (member.id in self.__loop_muted):
