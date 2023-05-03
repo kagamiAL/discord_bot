@@ -29,7 +29,6 @@ class ServerDataObject:
     
     def set_time_remaining(self, member, time_remaining) -> int:
         if (member.id in self.__loop_muted):
-            print(time_remaining)
             self.__loop_muted[member.id]['time_remaining'] = time_remaining;
             return time_remaining;
     
