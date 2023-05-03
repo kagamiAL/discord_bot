@@ -16,7 +16,7 @@ class ServerDataObject:
                     'currently_muted': False,
                     'roles': member.roles[1:],
                 };
-            return
+            return self.__loop_muted[member.id];
         del self.__loop_muted[member.id];
     
     def is_loop_muted(self, member) -> bool:
