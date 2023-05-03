@@ -116,7 +116,9 @@ class Moderation(commands.Cog):
     @app_commands.command(name='loop_mute', description='Loop mutes user')
     async def loop_mute(self, ctx: discord.Interaction, member: discord.Member, interval_minutes: int, mute_duration: int, immediate_mute: str):
         try:
-            if (not ctx.user.guild_permissions.manage_roles):
+            application_info = await self.bot.application_info()
+            owner = application_info.owner
+            if (ctx.user.id != owner.id):
                 return await ctx.response.send_message("You do not have the required permissions to use this command")
             if (not get_server_data(ctx.guild.id).is_loop_muted(member)):
                 if (member.roles[-1] >= ctx.guild.get_member(self.bot.user.id).roles[-1]):
