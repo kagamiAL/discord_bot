@@ -131,12 +131,14 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(manage_roles=True)
+    @commands.is_owner()
     async def un_loop_mute(self, ctx: discord.Message, member: discord.Member):
         server_data_object = get_server_data(ctx.guild.id);
         if (server_data_object.is_loop_muted(member)):
             server_data_object.set_loop_muted(member, False);
         try:
             await ctx.author.send(f"Sucessfully un-loopmuted user {member.name}");
+            print_report(f"Sucessfully un-loopmuted user {member.name}")
         except Exception as e:
             print(e);
     
