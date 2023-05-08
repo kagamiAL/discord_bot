@@ -12,7 +12,7 @@ class ServerDataObject:
     
     __loop_muted = {};
     
-    __mudae_hitlist: list[str] = [];
+    __mudae_hitlist = [];
     
     def add_to_mudae_hitlist(self, str) -> bool:
         if (str in self.__mudae_hitlist or len(self.__mudae_hitlist) >= CHARACTER_HITLIST_LIMIT):
