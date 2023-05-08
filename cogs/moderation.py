@@ -136,6 +136,16 @@ class Moderation(commands.Cog):
             return await ctx.response.send_message("Time until {0} is {1}: {2} minutes".format(member.name, ('unmuted' if server_data_object.is_currently_muted(member) else "muted"), server_data_object.get_time_remaining(member)));
         return await ctx.response.send_message("User is not loop-muted")
 
+    @app_commands.command(name='clear_mudae_hitlist', description='Clears the hitlist (Alan only :P)')
+    async def clear_mudae_hitlist(self, ctx: discord.Interaction):
+        application_info = await self.bot.application_info()
+        owner = application_info.owner
+        if (ctx.user.id != owner.id):
+            return await ctx.response.send_message("You do not have the required permissions to use this command", ephemeral=True)
+        ServerDataObject = get_server_data(ctx.guild.id);
+        ServerDataObject.clear_mudae_hitlist();
+        await ctx.response.send_message("Clearing hitlist...", ephemeral=True)
+
     @commands.command()
     @commands.has_permissions(manage_roles=True)
     @commands.is_owner()

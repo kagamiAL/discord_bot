@@ -1,6 +1,8 @@
 import discord
 from datetime import datetime
 
+CHARACTER_HITLIST_LIMIT = 50;
+
 guild_ids = [discord.Object(id=916706804652732416)];
 __server_data   = {};
 
@@ -9,6 +11,34 @@ class ServerDataObject:
     server_id: str;
     
     __loop_muted = {};
+    
+    __mudae_hitlist: list[str] = [];
+    
+    def add_to_mudae_hitlist(self, str) -> bool:
+        if (str in self.__mudae_hitlist or len(self.__mudae_hitlist) >= CHARACTER_HITLIST_LIMIT):
+            return False;
+        self.__mudae_hitlist.append(str);
+        return True;
+    
+    def get_mudae_hitlist(self):
+        return self.__mudae_hitlist;
+    
+    def remove_from_mudae_hitlist(self, str) -> bool:
+        if (not str in self.__mudae_hitlist):
+            str = self.search_mudae_hitlist(str);
+            if (not str):
+                return False;
+        self.__mudae_hitlist.remove(str);
+        return True;
+    
+    def search_mudae_hitlist(self, str: str):
+        for character in self.__mudae_hitlist:
+            if (str == character or character in str or str in character):
+                return character;
+    
+    def clear_mudae_hitlist(self):
+        self.__mudae_hitlist = [];
+        return;
     
     def set_loop_muted(self, member, is_muted: bool):
         if (is_muted):

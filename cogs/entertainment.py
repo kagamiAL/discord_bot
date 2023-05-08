@@ -59,6 +59,33 @@ class Entertainment(commands.Cog):
         except Exception as e:
             print_report(f'Error speaking: {e}')
             
+    @app_commands.command(name='add_to_mudae_hitlist', description='Delete all instances of this character if it appears')
+    async def add_to_mudae_hitlist(self, ctx: discord.Interaction, character_name: str):
+        try: 
+            character_name = character_name.lower();
+            server_data_object = get_server_data(ctx.guild.id)
+            if (server_data_object.add_to_mudae_hitlist(character_name)):
+                return await ctx.response.send_message(f'Added ({character_name}) to the mudae hitlist', ephemeral=True)
+            return await ctx.response.send_message(f'({character_name}) is already on the mudae hitlist', ephemeral=True)
+        except Exception as e:
+            print_report(f'Error adding to mudae hitlist: {e}')
+    
+    @app_commands.command(name='get_mudae_hitlist', description='Read all characters on the mudae hitlist')
+    async def read_mudae_hitlist(self, ctx: discord.Interaction):
+        server_data_object = get_server_data(ctx.guild.id)
+        return await ctx.response.send_message('Current mudae hitlist:\n' + '\n'.join(server_data_object.get_mudae_hitlist()), ephemeral=True)
+    
+    @app_commands.command(name='remove_from_mudae_hitlist', description='Remove a character from the mudae hitlist')
+    async def remove_from_mudae_hitlist(self, ctx: discord.Interaction, character_name: str):
+        try:
+            character_name = character_name.lower();
+            server_data_object = get_server_data(ctx.guild.id)
+            if (server_data_object.remove_from_mudae_hitlist(character_name)):
+                return await ctx.response.send_message(f'Removed ({character_name}) from the mudae hitlist', ephemeral=True)
+            return await ctx.response.send_message(f'({character_name}) was not on the mudae hitlist', ephemeral=True)
+        except Exception as e:
+            print_report(f'Error removing from mudae hitlist: {e}')
+    
     def __init__(self, bot):
         self.bot = bot
     
