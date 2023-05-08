@@ -37,8 +37,8 @@ async def handle_mute_state(ctx, member, is_muted: bool, time_out_duration: int)
         except Exception as e:
             print_report(f"Failed to timeout user: {e}");
 
-random_gifs = ['https://media.tenor.com/APFvROVc6CwAAAAC/sad-sorry.gif', 'https://media.tenor.com/h8zc8kPJDYoAAAAC/drake-dake.gif', 'https://media.tenor.com/NQfq1liFH-8AAAAd/byuntear-sad.gif', 'https://media.tenor.com/-DY1sCSEXqUAAAAd/sad-cat.gif']
-random_sayings = ['Go outside and enjoy the outdoors or something', "Look who isn't working on their assignments rn", 'Did you know? Focusing on your work is 10x more efficient than being here']
+random_gifs = ['https://media.tenor.com/uu9seSBtPaEAAAAM/sad-cat.gif' ,'https://media.tenor.com/Xzb1l8FuQr4AAAAM/aur-naur-oh-no.gif', 'https://media.tenor.com/APFvROVc6CwAAAAC/sad-sorry.gif', 'https://media.tenor.com/h8zc8kPJDYoAAAAC/drake-dake.gif', 'https://media.tenor.com/NQfq1liFH-8AAAAd/byuntear-sad.gif', 'https://media.tenor.com/-DY1sCSEXqUAAAAd/sad-cat.gif']
+random_sayings = ['Go outside and enjoy the outdoors or something', 'WAAAA WAAAAA NO MUDAE I WANT MY MUDAE :c', 'Get rehab you addicts :33', "Look who isn't working on their assignments rn", 'Did you know? Focusing on your work is 10x more efficient than being here']
 
 #--modifies embed according to mute state
 async def send_embed_to_channel(ctx, member, is_muted):
