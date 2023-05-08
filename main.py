@@ -37,6 +37,7 @@ async def on_message(message):
         return;
     await bot.process_commands(message)
     await delete_messages_if_muted(message)
+    await filter_mudae_hitlist(message)
 
 load_dotenv(encoding='utf-16')
 async def main():
