@@ -22,7 +22,8 @@ async def filter_mudae_hitlist(message: discord.Message):
             if (len(message.embeds) > 0):
                 embed: discord.Embed   = message.embeds[0];
                 if server_data_object.search_mudae_hitlist(embed.author.name.lower()):
-                    return await message.delete();
+                    await message.delete();
+                    return await message.channel.send(f'@here, Just sniped {embed.author.name}! On hitlist')
     except Exception as e:
         print_report(f'Error filtering mudae hitlist: {e}')
 
