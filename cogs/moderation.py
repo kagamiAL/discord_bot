@@ -162,13 +162,21 @@ class Moderation(commands.Cog):
     
     @commands.command()
     @commands.is_owner()
-    async def modify_const(self, ctx: discord.Message, const_name: str, const_value: str):
+    async def modify_constant(self, ctx: discord.Message, const_name: str, const_value: str):
         try:
             if (const_name in constants.constants_table):
                 constants.modify_constant(const_name, const_value);
                 return await ctx.author.send(f"Sucessfully modified constant {const_name} to {const_value}");
         except Exception as e:
             print_report(f"Error in modify_const: {e}")
+    
+    @commands.command()
+    @commands.is_owner()
+    async def read_all_constants(self, ctx: discord.Message):
+        try:
+            return await ctx.author.send('[' + '\n'.join([f"{const_name}: {const_value}" for const_name, const_value in constants.constants_table.items()]) + ']');
+        except Exception as e:
+            print_report(f"Error in read_all_constants: {e}")
     
     def __init__(self, bot):
         self.bot = bot;
