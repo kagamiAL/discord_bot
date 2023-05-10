@@ -63,6 +63,8 @@ class Entertainment(commands.Cog):
     async def add_to_mudae_hitlist(self, ctx: discord.Interaction, character_name: str):
         try: 
             character_name = character_name.lower();
+            if (len(character_name) < 4):
+                return await ctx.response.send_message("Character name must be at least 4 characters long", ephemeral=True);
             server_data_object = get_server_data(ctx.guild.id)
             if (server_data_object.add_to_mudae_hitlist(character_name)):
                 return await ctx.response.send_message(f'Added ({character_name}) to the mudae hitlist', ephemeral=True)
