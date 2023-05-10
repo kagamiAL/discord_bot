@@ -5,6 +5,10 @@ from global_data import *;
 from discord.ext import commands;
 from discord import app_commands;
 
+REMOVE_ACTION_NAME: str = 'remove_from_hitlist'
+
+COOL_DOWN_TIME_SECONDS: int = 172800
+
 random_silly_gifs = [
     'https://media.tenor.com/v6j3qu9ZmMIAAAAd/funny-cat.gif', 
     'https://media.tenor.com/qRhkAc08-doAAAAd/my-true.gif', 
@@ -80,9 +84,15 @@ class Entertainment(commands.Cog):
     @app_commands.command(name='remove_from_mudae_hitlist', description='Remove a character from the mudae hitlist')
     async def remove_from_mudae_hitlist(self, ctx: discord.Interaction, character_name: str):
         try:
+            application_info = await self.bot.application_info()
+            owner = application_info.owner
+            server_data_object: ServerDataObject = get_server_data(ctx.guild.id)
+            user_data: UserData = server_data_object.get_user_data(ctx.user)
+            if (ctx.user.id != owner.id and user_data.is_on_cooldown(REMOVE_ACTION_NAME)):
+                return await ctx.response.send_message("You are on cooldown for this command, time remaining: {0:.1f} hrs, {1:.1f} min, {2:.1f} sec".format(*convert_to_time_format(user_data.get_remaining_time(REMOVE_ACTION_NAME))), ephemeral=True);
             character_name = character_name.lower();
-            server_data_object = get_server_data(ctx.guild.id)
             if (server_data_object.remove_from_mudae_hitlist(character_name)):
+                user_data.set_cooldown(REMOVE_ACTION_NAME, COOL_DOWN_TIME_SECONDS)
                 return await ctx.response.send_message(f'Removed ({character_name}) from the mudae hitlist', ephemeral=True)
             return await ctx.response.send_message(f'({character_name}) was not on the mudae hitlist', ephemeral=True)
         except Exception as e:
