@@ -32,6 +32,8 @@ async def find_latest_message(user_id, channel):
             return message
     return None
 
+def get_cooldown_string(user_data, action_name: str) -> str:
+    return "You are on cooldown for this command, time remaining: {0:.1f} hrs, {1:.1f} min, {2:.1f} sec".format(*convert_to_time_format(user_data.get_remaining_time(action_name)))
 class Entertainment(commands.Cog):
     @app_commands.command(name='silly', description='Send a random silly gif')
     async def silly(self, interaction: discord.Interaction):
@@ -89,7 +91,7 @@ class Entertainment(commands.Cog):
             server_data_object: ServerDataObject = get_server_data(ctx.guild.id)
             user_data: UserData = server_data_object.get_user_data(ctx.user)
             if (ctx.user.id != owner.id and user_data.is_on_cooldown(REMOVE_ACTION_NAME)):
-                return await ctx.response.send_message("You are on cooldown for this command, time remaining: {0:.1f} hrs, {1:.1f} min, {2:.1f} sec".format(*convert_to_time_format(user_data.get_remaining_time(REMOVE_ACTION_NAME))), ephemeral=True);
+                return await ctx.response.send_message(get_cooldown_string(user_data, REMOVE_ACTION_NAME), ephemeral=True);
             character_name = character_name.lower();
             if (server_data_object.remove_from_mudae_hitlist(character_name)):
                 user_data.set_cooldown(REMOVE_ACTION_NAME, COOL_DOWN_TIME_SECONDS)
