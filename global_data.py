@@ -32,7 +32,7 @@ class CoolDown:
 
 class UserData:
     
-    member: discord.Member;
+    member = None;
     
     __cool_downs = None;
     
