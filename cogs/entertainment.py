@@ -3,6 +3,7 @@ import discord;
 import random;
 from discord import Embed;
 from global_data import *;
+import constants;
 from discord.ext import commands;
 from discord import app_commands;
 
@@ -84,28 +85,27 @@ class Entertainment(commands.Cog):
         server_data_object = get_server_data(ctx.guild.id)
         return await ctx.response.send_message('Current mudae hitlist:\n' + '\n'.join(server_data_object.get_mudae_hitlist()), ephemeral=True)
     
-    @app_commands.command(name='remove_from_mudae_hitlist', description='Remove a character from the mudae hitlist')
-    async def remove_from_mudae_hitlist(self, ctx: discord.Interaction, character_name: str):
-        try:
-            application_info = await self.bot.application_info()
-            owner = application_info.owner
-            server_data_object: ServerDataObject = get_server_data(ctx.guild.id)
-            user_data: UserData = server_data_object.get_user_data(ctx.user)
-            if (ctx.user.id != owner.id and user_data.is_on_cooldown(REMOVE_ACTION_NAME)):
-                return await ctx.response.send_message(get_cooldown_string(user_data, REMOVE_ACTION_NAME), ephemeral=True);
-            character_name = character_name.lower();
-            if (server_data_object.remove_from_mudae_hitlist(character_name)):
-                user_data.set_cooldown(REMOVE_ACTION_NAME, COOL_DOWN_TIME_SECONDS)
-                return await ctx.response.send_message(f'Removed ({character_name}) from the mudae hitlist', ephemeral=True)
-            return await ctx.response.send_message(f'({character_name}) was not on the mudae hitlist', ephemeral=True)
-        except Exception as e:
-            print_report(f'Error removing from mudae hitlist: {e}')
+    # @app_commands.command(name='remove_from_mudae_hitlist', description='Remove a character from the mudae hitlist')
+    # async def remove_from_mudae_hitlist(self, ctx: discord.Interaction, character_name: str):
+    #     try:
+    #         application_info = await self.bot.application_info()
+    #         owner = application_info.owner
+    #         server_data_object: ServerDataObject = get_server_data(ctx.guild.id)
+    #         user_data: UserData = server_data_object.get_user_data(ctx.user)
+    #         if (ctx.user.id != owner.id and user_data.is_on_cooldown(REMOVE_ACTION_NAME)):
+    #             return await ctx.response.send_message(get_cooldown_string(user_data, REMOVE_ACTION_NAME), ephemeral=True);
+    #         character_name = character_name.lower();
+    #         if (server_data_object.remove_from_mudae_hitlist(character_name)):
+    #             user_data.set_cooldown(REMOVE_ACTION_NAME, COOL_DOWN_TIME_SECONDS)
+    #             return await ctx.response.send_message(f'Removed ({character_name}) from the mudae hitlist', ephemeral=True)
+    #         return await ctx.response.send_message(f'({character_name}) was not on the mudae hitlist', ephemeral=True)
+    #     except Exception as e:
+            # print_report(f'Error removing from mudae hitlist: {e}')
     
     @app_commands.command(name="repeatedly_ping", description="Repeatedly ping a user/role")
     async def repeatedly_ping(self, ctx: discord.Interaction, pingable: discord.Member|discord.Role, amt_ping: int):
         MAX_PINGS = 75
         INTERVAL_TIME: int = 1
-        COOL_DOWN_TIME: int = (3600)
         ACTION_NAME: str    = 'spam_ping'
         try: 
             if (not ctx.user.guild_permissions.administrator):
@@ -116,7 +116,7 @@ class Entertainment(commands.Cog):
                 return await ctx.response.send_message(get_cooldown_string(user_data, ACTION_NAME), ephemeral=True);
             if (server_data_object.is_currently_pinged(pingable)):
                 return await ctx.response.send_message(f'({pingable}) is already being pinged', ephemeral=True)
-            user_data.set_cooldown(ACTION_NAME, COOL_DOWN_TIME);
+            user_data.set_cooldown(ACTION_NAME, constants.get_constant('repeat_ping_cool_down'));
             server_data_object.set_currently_pinged(pingable, True);
             amt_ping = (amt_ping if amt_ping <= MAX_PINGS else MAX_PINGS)
             await ctx.response.send_message(f'Pinging ({pingable}) {amt_ping} times', ephemeral=True)
