@@ -97,16 +97,13 @@ class ServerDataObject:
     
     def remove_from_mudae_hitlist(self, str) -> bool:
         if (not str in self.__mudae_hitlist):
-            str = self.search_mudae_hitlist(str);
-            if (not str):
-                return False;
+            return False;
         self.__mudae_hitlist.remove(str);
         return True;
     
     def search_mudae_hitlist(self, str: str):
-        for character in self.__mudae_hitlist:
-            if (str == character or character in str or str in character):
-                return character;
+        if (str and str in self.__mudae_hitlist):
+            return str;
     
     def clear_mudae_hitlist(self):
         self.__mudae_hitlist = [];
