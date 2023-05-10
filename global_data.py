@@ -66,7 +66,20 @@ class ServerDataObject:
     
     __loop_muted = {};
     
+    __currently_pinged = [];
+    
     __mudae_hitlist = [];
+    
+    def is_currently_pinged(self, member) -> bool:
+        if (member.id in self.__currently_pinged):
+            return True;
+        return False;
+    
+    def set_currently_pinged(self, member, is_pinged: bool):
+        if (is_pinged):
+            self.__currently_pinged.append(member.id);
+            return;
+        self.__currently_pinged.remove(member.id);
     
     def get_user_data(self, member: discord.Member):
         if (not member.id in self.__user_data):

@@ -1,3 +1,4 @@
+import asyncio
 import discord;
 import random;
 from discord import Embed;
@@ -99,6 +100,32 @@ class Entertainment(commands.Cog):
             return await ctx.response.send_message(f'({character_name}) was not on the mudae hitlist', ephemeral=True)
         except Exception as e:
             print_report(f'Error removing from mudae hitlist: {e}')
+    
+    @app_commands.command(name="repeatedly_ping", description="Repeatedly ping a user/role")
+    async def repeatedly_ping(self, ctx: discord.Interaction, pingable: discord.Member|discord.Role, amt_ping: int):
+        MAX_PINGS = 75
+        INTERVAL_TIME: int = 1
+        COOL_DOWN_TIME: int = (3600)
+        ACTION_NAME: str    = 'spam_ping'
+        try: 
+            if (not ctx.user.guild_permissions.administrator):
+                return await ctx.response.send_message("You do not have the required permissions to use this command", ephemeral=True);
+            server_data_object: ServerDataObject = get_server_data(ctx.guild.id)
+            user_data: UserData   = server_data_object.get_user_data(ctx.user)
+            if (user_data.is_on_cooldown(ACTION_NAME)):
+                return await ctx.response.send_message(get_cooldown_string(user_data, ACTION_NAME), ephemeral=True);
+            if (server_data_object.is_currently_pinged(pingable)):
+                return await ctx.response.send_message(f'({pingable}) is already being pinged', ephemeral=True)
+            user_data.set_cooldown(ACTION_NAME, COOL_DOWN_TIME);
+            server_data_object.set_currently_pinged(pingable, True);
+            amt_ping = (amt_ping if amt_ping <= MAX_PINGS else MAX_PINGS)
+            await ctx.response.send_message(f'Pinging ({pingable}) {amt_ping} times', ephemeral=True)
+            for _ in range(amt_ping):
+                await ctx.channel.send(pingable.mention)
+                await asyncio.sleep(INTERVAL_TIME)
+            server_data_object.set_currently_pinged(pingable, False);
+        except Exception as e:
+            print_report(f'Error repeatedly pinging: {e}')
     
     def __init__(self, bot):
         self.bot = bot
