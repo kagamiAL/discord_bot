@@ -52,6 +52,10 @@ class UserData:
         if (not cool_down_name in self.__cool_downs):
             return 0;
         return self.__cool_downs[cool_down_name].get_remaining_time();
+    
+    def __init__(self, member: discord.Member):
+        self.member = member;
+        return;
 
 class ServerDataObject:
     
@@ -65,7 +69,7 @@ class ServerDataObject:
     
     def get_user_data(self, member: discord.Member):
         if (not member.id in self.__user_data):
-            self.__user_data[member.id] = UserData();
+            self.__user_data[member.id] = UserData(member);
         return self.__user_data[member.id];
     
     def add_to_mudae_hitlist(self, str) -> bool:
