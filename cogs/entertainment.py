@@ -1,7 +1,6 @@
 import asyncio
 import discord;
 import random;
-from discord import Embed;
 from global_data import *;
 import constants;
 from discord.ext import commands;
