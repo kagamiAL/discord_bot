@@ -1,4 +1,5 @@
 import discord
+import time
 from datetime import datetime
 
 CHARACTER_HITLIST_LIMIT = 50;
@@ -6,13 +7,66 @@ CHARACTER_HITLIST_LIMIT = 50;
 guild_ids = [discord.Object(id=916706804652732416)];
 __server_data   = {};
 
+class CoolDown:
+    
+    cached_time: int = 0;
+    cool_down_time: int = 0;
+
+    def is_on_cooldown(self) -> bool:
+        if (time.time() - self.cached_time < self.cool_down_time):
+            return True;
+        return False;
+    
+    def get_remaining_time(self) -> int:
+        return (self.cool_down_time - (time.time() - self.cached_time));
+    
+    def set_cooldown(self, cool_down_time: int):
+        self.cached_time = time.time();
+        self.cool_down_time = cool_down_time;
+        return;
+        
+    def __init__(self, cool_down_time: int = 0):
+        self.cached_time = time.time();
+        self.cool_down_time = cool_down_time;
+        return;
+
+class UserData:
+    
+    member: discord.Member;
+    
+    __cool_downs = {};
+    
+    def is_on_cooldown(self, cool_down_name: str) -> bool:
+        if (not cool_down_name in self.__cool_downs):
+            return False;
+        return self.__cool_downs[cool_down_name].is_on_cooldown();
+    
+    def set_cooldown(self, cool_down_name: str, cd_time: int):
+        if (not cool_down_name in self.__cool_downs):
+            self.__cool_downs[cool_down_name] = CoolDown(cd_time);
+            return;
+        self.__cool_downs[cool_down_name].set_cooldown(cd_time);
+        return;
+    
+    def get_remaining_time(self, cool_down_name: str) -> int:
+        if (not cool_down_name in self.__cool_downs):
+            return 0;
+        return self.__cool_downs[cool_down_name].get_remaining_time();
+
 class ServerDataObject:
     
     server_id: str;
     
+    __user_data = {};
+    
     __loop_muted = {};
     
     __mudae_hitlist = [];
+    
+    def get_user_data(self, member: discord.Member):
+        if (not member.id in self.__user_data):
+            self.__user_data[member.id] = UserData();
+        return self.__user_data[member.id];
     
     def add_to_mudae_hitlist(self, str) -> bool:
         if (str in self.__mudae_hitlist or len(self.__mudae_hitlist) >= CHARACTER_HITLIST_LIMIT):
@@ -86,6 +140,12 @@ def get_server_data(server_id):
 
 def get_current_date_time() -> str:
     return datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ': ';
+
+#Converts seconds to hours, minutes, seconds, returns a tuple of (hours, minutes, seconds)
+def convert_to_time_format(seconds):
+    min, sec = divmod(seconds, 60)
+    hour, min = divmod(min, 60)
+    return hour, min, sec
 
 def print_report(message: str):
     print(get_current_date_time() + message);
