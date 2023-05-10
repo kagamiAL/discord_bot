@@ -1,5 +1,6 @@
 import discord;
 import random;
+import constants;
 from discord import Embed;
 from discord import app_commands;
 from datetime import timedelta;
@@ -158,6 +159,16 @@ class Moderation(commands.Cog):
             print_report(f"Sucessfully un-loopmuted user {member.name}")
         except Exception as e:
             print(e);
+    
+    @commands.command()
+    @commands.is_owner()
+    async def modify_const(self, ctx: discord.Message, const_name: str, const_value: str):
+        try:
+            if (const_name in constants.constants_table):
+                constants.modify_constant(const_name, const_value);
+                return await ctx.author.send(f"Sucessfully modified constant {const_name} to {const_value}");
+        except Exception as e:
+            print_report(f"Error in modify_const: {e}")
     
     def __init__(self, bot):
         self.bot = bot;
