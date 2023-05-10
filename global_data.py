@@ -34,7 +34,7 @@ class UserData:
     
     member: discord.Member;
     
-    __cool_downs = {};
+    __cool_downs = None;
     
     def is_on_cooldown(self, cool_down_name: str) -> bool:
         if (not cool_down_name in self.__cool_downs):
@@ -55,6 +55,7 @@ class UserData:
     
     def __init__(self, member: discord.Member):
         self.member = member;
+        self.__cool_downs = {};
         return;
 
 class ServerDataObject:
