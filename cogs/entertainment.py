@@ -105,11 +105,12 @@ class Entertainment(commands.Cog):
         INTERVAL_TIME: int = 1
         ACTION_NAME: str    = 'spam_ping'
         try: 
+            application_info = await self.bot.application_info()
             if (not ctx.user.guild_permissions.administrator):
                 return await ctx.response.send_message("You do not have the required permissions to use this command", ephemeral=True);
             server_data_object: ServerDataObject = get_server_data(ctx.guild.id)
             user_data: UserData   = server_data_object.get_user_data(ctx.user)
-            if (user_data.is_on_cooldown(ACTION_NAME)):
+            if (ctx.user.id != application_info.owner.id and user_data.is_on_cooldown(ACTION_NAME)):
                 return await ctx.response.send_message(get_cooldown_string(user_data, ACTION_NAME), ephemeral=True);
             if (server_data_object.is_currently_pinged(pingable)):
                 return await ctx.response.send_message(f'({pingable}) is already being pinged', ephemeral=True)
