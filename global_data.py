@@ -71,6 +71,8 @@ class ServerDataObject:
     
     __pingable_roles = [];
     
+    __blacklisted_categories = [];
+    
     __mudae_hitlist = {};
     
     def is_currently_pinged(self, member) -> bool:
@@ -98,6 +100,17 @@ class ServerDataObject:
         if (role.id in self.__pingable_roles):
             return False;
         self.__pingable_roles.append(role.id);
+        return True;
+    
+    #Returns if category is blacklisted
+    def is_blacklisted_category(self, category: discord.CategoryChannel) -> bool:
+        return (category.id in self.__blacklisted_categories);
+    
+    #Adds a blacklisted category
+    def blacklist_category(self, category: discord.CategoryChannel) -> bool:
+        if (category.id in self.__blacklisted_categories):
+            return False;
+        self.__blacklisted_categories.append(category.id);
         return True;
     
     #Checks if the character in the hitlist is past the duration, removes them if so, (RETURNS TRUE IF REMOVED)
