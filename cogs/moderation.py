@@ -155,6 +155,13 @@ class Moderation(commands.Cog):
         await ctx.author.send(f"Sucessfully added pingable role {role.name}");
 
     @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def blacklist_category(self, ctx: discord.Message, category: discord.CategoryChannel):
+        server_data_object = get_server_data(ctx.guild.id);
+        server_data_object.blacklist_category(category);
+        return await ctx.author.send(f"Sucessfully blacklisted category {category.name}");
+
+    @commands.command()
     @commands.has_permissions(manage_roles=True)
     @commands.is_owner()
     async def un_loop_mute(self, ctx: discord.Message, member: discord.Member):
