@@ -1,8 +1,10 @@
 constants_table = {
     
-    'repeat_ping_cool_down': 3600,
+    'repeat_ping_cool_down': 86400,
     
-    'hitlist_duration': 172800
+    'hitlist_duration': 172800,
+    
+    'maximum_pings': 500,
     
 }
 
