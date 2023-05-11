@@ -39,8 +39,11 @@ async def spam_ping(channel: discord.TextChannel, pingable: discord.Member|disco
         INTERVAL_TIME: int = 1
         amt_ping = (amt_ping if amt_ping <= MAX_PINGS else MAX_PINGS)
         for _ in range(amt_ping):
-            msg: discord.Message = await channel.send(pingable.mention);
-            await msg.delete();
+            try:
+                msg: discord.Message = await channel.send(pingable.mention);
+                await msg.delete();
+            except Exception as e:
+                print_report(f'Error spam pinging: {e}')
             await asyncio.sleep(INTERVAL_TIME);
     except Exception as e:
         print_report(f'Error spam pinging: {e}')
