@@ -81,8 +81,15 @@ class Entertainment(commands.Cog):
     
     @app_commands.command(name='get_mudae_hitlist', description='Read all characters on the mudae hitlist')
     async def read_mudae_hitlist(self, ctx: discord.Interaction):
-        server_data_object = get_server_data(ctx.guild.id)
-        return await ctx.response.send_message('Current mudae hitlist:\n' + '\n'.join(server_data_object.get_mudae_hitlist()), ephemeral=True)
+        try:
+            server_data_object: ServerDataObject = get_server_data(ctx.guild.id)
+            server_data_object.check_entire_mudae_hitlist();
+            hitlist_duration = constants.get_constant('hitlist_duration')
+            hitlist_items   = server_data_object.get_mudae_hitlist().items()
+            hitlist_strings = [f"{char_name}: **{'{0:.0f}**h **{1:.0f}**min **{2:.0f}**sec'.format(*convert_to_time_format(hitlist_duration - (time.time() - cached_time)))} left until removal" for char_name, cached_time in hitlist_items]
+            await ctx.response.send_message(f'Current mudae hitlist:\n{"".join(hitlist_strings)}', ephemeral=True)
+        except Exception as e:
+            print_report(f'Error reading mudae hitlist: {e}')
     
     @app_commands.command(name='remove_from_mudae_hitlist', description='Remove a character from the mudae hitlist')
     async def remove_from_mudae_hitlist(self, ctx: discord.Interaction, character_name: str):
