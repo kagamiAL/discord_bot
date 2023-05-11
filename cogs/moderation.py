@@ -149,6 +149,13 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(manage_roles=True)
+    async def add_pingable_role(self, ctx: discord.Message, role: discord.Role):
+        server_data_object = get_server_data(ctx.guild.id);
+        server_data_object.add_pingable_role(role);
+        await ctx.author.send(f"Sucessfully added pingable role {role.name}");
+
+    @commands.command()
+    @commands.has_permissions(manage_roles=True)
     @commands.is_owner()
     async def un_loop_mute(self, ctx: discord.Message, member: discord.Member):
         server_data_object = get_server_data(ctx.guild.id);
