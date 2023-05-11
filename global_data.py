@@ -69,6 +69,8 @@ class ServerDataObject:
     
     __currently_pinged = [];
     
+    __pingable_roles = [];
+    
     __mudae_hitlist = {};
     
     def is_currently_pinged(self, member) -> bool:
@@ -86,6 +88,17 @@ class ServerDataObject:
         if (not member.id in self.__user_data):
             self.__user_data[member.id] = UserData(member);
         return self.__user_data[member.id];
+    
+    #Checks if the role is pingable
+    def is_pingable_role(self, role: discord.Role) -> bool:
+        return (role.id in self.__pingable_roles)
+    
+    #Adds a role to pingable roles
+    def add_pingable_role(self, role: discord.Role) -> bool:
+        if (role.id in self.__pingable_roles):
+            return False;
+        self.__pingable_roles.append(role.id);
+        return True;
     
     #Checks if the character in the hitlist is past the duration, removes them if so, (RETURNS TRUE IF REMOVED)
     def check_mudae_hitlist_status(self, char_name: str) -> bool:
