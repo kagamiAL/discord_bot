@@ -1,5 +1,6 @@
 import discord
 import time
+import constants;
 from datetime import datetime
 
 CHARACTER_HITLIST_LIMIT = 50;
@@ -68,7 +69,7 @@ class ServerDataObject:
     
     __currently_pinged = [];
     
-    __mudae_hitlist = [];
+    __mudae_hitlist = {};
     
     def is_currently_pinged(self, member) -> bool:
         if (member.id in self.__currently_pinged):
@@ -86,10 +87,24 @@ class ServerDataObject:
             self.__user_data[member.id] = UserData(member);
         return self.__user_data[member.id];
     
+    #Checks if the character in the hitlist is past the duration, removes them if so, (RETURNS TRUE IF REMOVED)
+    def check_mudae_hitlist_status(self, char_name: str) -> bool:
+        if (char_name in self.__mudae_hitlist):
+            if (time.time() - self.__mudae_hitlist[char_name] >= constants.get_constant('hitlist_duration')):
+                del self.__mudae_hitlist[char_name];
+                return True;
+        return False;
+    
+    #Checks entire hitlist for expired characters
+    def check_entire_mudae_hitlist(self):
+        for char_name in list(self.__mudae_hitlist.keys()):
+            self.check_mudae_hitlist_status(char_name);
+        return;
+    
     def add_to_mudae_hitlist(self, str) -> bool:
         if (str in self.__mudae_hitlist or len(self.__mudae_hitlist) >= CHARACTER_HITLIST_LIMIT):
             return False;
-        self.__mudae_hitlist.append(str);
+        self.__mudae_hitlist[str]   = time.time();
         return True;
     
     def get_mudae_hitlist(self):
@@ -98,7 +113,7 @@ class ServerDataObject:
     def remove_from_mudae_hitlist(self, str) -> bool:
         if (not str in self.__mudae_hitlist):
             return False;
-        self.__mudae_hitlist.remove(str);
+        del self.__mudae_hitlist[str];
         return True;
     
     def search_mudae_hitlist(self, str: str):
@@ -106,7 +121,7 @@ class ServerDataObject:
             return str;
     
     def clear_mudae_hitlist(self):
-        self.__mudae_hitlist = [];
+        self.__mudae_hitlist = {};
         return;
     
     def set_loop_muted(self, member, is_muted: bool):
