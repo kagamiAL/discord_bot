@@ -2,6 +2,8 @@ constants_table = {
     
     'repeat_ping_cool_down': 3600,
     
+    'hitlist_duration': 172800
+    
 }
 
 def get_constant(constant_name: str):
