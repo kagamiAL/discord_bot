@@ -18,12 +18,14 @@ async def delete_messages_if_muted(message: discord.Message):
 async def filter_mudae_hitlist(message: discord.Message):
     try:
         if (message.author.name == "Mudae"):
-            server_data_object  = get_server_data(message.guild.id);
+            server_data_object: ServerDataObject  = get_server_data(message.guild.id);
             if (len(message.embeds) > 0):
                 embed: discord.Embed   = message.embeds[0];
                 if server_data_object.search_mudae_hitlist(embed.author.name.lower()):
-                    await message.delete();
-                    return await message.channel.send(f'Just sniped {embed.author.name}! On hitlist :PP')
+                    char_name: str  = embed.author.name.lower();
+                    if (not server_data_object.check_mudae_hitlist_status(char_name)):
+                        await message.delete();
+                        return await message.channel.send(f'Just sniped {char_name}! On hitlist :PP')
     except Exception as e:
         print_report(f'Error filtering mudae hitlist: {e}')
 
