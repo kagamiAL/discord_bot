@@ -68,12 +68,18 @@ class Entertainment(commands.Cog):
             
     @app_commands.command(name='add_to_mudae_hitlist', description='Delete all instances of this character if it appears')
     async def add_to_mudae_hitlist(self, ctx: discord.Interaction, character_name: str):
+        ACTION_NAME: str    = 'add_to_mudae_hitlist'
         try: 
             character_name = character_name.lower();
             if (len(character_name) < 4):
                 return await ctx.response.send_message("Character name must be at least 4 characters long", ephemeral=True);
-            server_data_object = get_server_data(ctx.guild.id)
+            application_info = await self.bot.application_info()
+            server_data_object: ServerDataObject = get_server_data(ctx.guild.id)
+            user_data: UserData = server_data_object.get_user_data(ctx.user)
+            if (ctx.user.id != application_info.owner.id and user_data.is_on_cooldown(ACTION_NAME)):
+                return await ctx.response.send_message(get_cooldown_string(user_data, ACTION_NAME), ephemeral=True)
             if (server_data_object.add_to_mudae_hitlist(character_name)):
+                user_data.set_cooldown(ACTION_NAME, constants.get_constant('hitlist_duration'))
                 return await ctx.response.send_message(f'Added ({character_name}) to the mudae hitlist', ephemeral=True)
             return await ctx.response.send_message(f'({character_name}) is already on the mudae hitlist', ephemeral=True)
         except Exception as e:
@@ -87,7 +93,7 @@ class Entertainment(commands.Cog):
             hitlist_duration = constants.get_constant('hitlist_duration')
             hitlist_items   = server_data_object.get_mudae_hitlist().items()
             hitlist_strings = [f"{char_name}: **{'{0:.0f}**h **{1:.0f}**min **{2:.0f}**sec'.format(*convert_to_time_format(hitlist_duration - (time.time() - cached_time)))} left until removal" for char_name, cached_time in hitlist_items]
-            await ctx.response.send_message(f'Current mudae hitlist:\n{"".join(hitlist_strings)}', ephemeral=True)
+            await ctx.response.send_message('Current mudae hitlist:\n{}'.format("\n".join(hitlist_strings)), ephemeral=True)
         except Exception as e:
             print_report(f'Error reading mudae hitlist: {e}')
     
