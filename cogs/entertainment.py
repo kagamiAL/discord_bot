@@ -150,12 +150,15 @@ class Entertainment(commands.Cog):
     async def ping_in_all_channels(self, ctx: discord.Interaction, pingable: discord.Member|discord.Role, amt_ping: int):
         try:
             application_info = await self.bot.application_info()
+            server_data: ServerDataObject   = get_server_data(ctx.guild.id)
             if (ctx.user.id != application_info.owner.id):
                 return await ctx.response.send_message("You do not have the required permissions to use this command", ephemeral=True);
-            if (not get_server_data(ctx.guild.id).is_pingable_role(pingable)):
+            if (not server_data.is_pingable_role(pingable)):
                 return await ctx.response.send_message(f'({pingable}) is not a pingable role', ephemeral=True)
             running_loop = asyncio.get_running_loop()
             for channel in ctx.guild.text_channels:
+                if (not channel.category or server_data.is_blacklisted_category(channel.category)):
+                    continue;
                 running_loop.create_task(spam_ping(channel, pingable, amt_ping))
             return await ctx.response.send_message(f'Pinging ({pingable}) {amt_ping} times in all channels', ephemeral=True);
         except Exception as e:
