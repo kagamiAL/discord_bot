@@ -33,6 +33,17 @@ async def find_latest_message(user_id, channel):
             return message
     return None
 
+async def spam_ping(channel: discord.TextChannel, pingable: discord.Member|discord.Role, amt_ping: int = 1):
+    try:
+        MAX_PINGS = constants.get_constant('maximum_pings')
+        INTERVAL_TIME: int = 1
+        amt_ping = (amt_ping if amt_ping <= MAX_PINGS else MAX_PINGS)
+        for _ in range(amt_ping):
+            await channel.send(pingable.mention)
+            await asyncio.sleep(INTERVAL_TIME)
+    except Exception as e:
+        print_report(f'Error spam pinging: {e}')
+
 def get_cooldown_string(user_data, action_name: str) -> str:
     return "You are on cooldown for this command, time remaining: {0:.1f} hrs, {1:.1f} min, {2:.1f} sec".format(*convert_to_time_format(user_data.get_remaining_time(action_name)))
 class Entertainment(commands.Cog):
@@ -114,8 +125,6 @@ class Entertainment(commands.Cog):
     
     @app_commands.command(name="repeatedly_ping", description="Repeatedly ping a user/role")
     async def repeatedly_ping(self, ctx: discord.Interaction, pingable: discord.Member|discord.Role, amt_ping: int):
-        MAX_PINGS = 75
-        INTERVAL_TIME: int = 1
         ACTION_NAME: str    = 'spam_ping'
         try: 
             application_info = await self.bot.application_info()
@@ -123,20 +132,34 @@ class Entertainment(commands.Cog):
                 return await ctx.response.send_message("You do not have the required permissions to use this command", ephemeral=True);
             server_data_object: ServerDataObject = get_server_data(ctx.guild.id)
             user_data: UserData   = server_data_object.get_user_data(ctx.user)
+            if (not server_data_object.is_pingable_role(pingable)):
+                return await ctx.response.send_message(f'({pingable}) is not a pingable role', ephemeral=True)
             if (ctx.user.id != application_info.owner.id and user_data.is_on_cooldown(ACTION_NAME)):
                 return await ctx.response.send_message(get_cooldown_string(user_data, ACTION_NAME), ephemeral=True);
             if (server_data_object.is_currently_pinged(pingable)):
                 return await ctx.response.send_message(f'({pingable}) is already being pinged', ephemeral=True)
             user_data.set_cooldown(ACTION_NAME, constants.get_constant('repeat_ping_cool_down'));
             server_data_object.set_currently_pinged(pingable, True);
-            amt_ping = (amt_ping if amt_ping <= MAX_PINGS else MAX_PINGS)
             await ctx.response.send_message(f'Pinging ({pingable}) {amt_ping} times', ephemeral=True)
-            for _ in range(amt_ping):
-                await ctx.channel.send(pingable.mention)
-                await asyncio.sleep(INTERVAL_TIME)
+            await spam_ping(ctx.channel, pingable, amt_ping)
             server_data_object.set_currently_pinged(pingable, False);
         except Exception as e:
             print_report(f'Error repeatedly pinging: {e}')
+    
+    @app_commands.command(name="ping_in_all_channels", description="Ping a user/role in all channels")
+    async def ping_in_all_channels(self, ctx: discord.Interaction, pingable: discord.Member|discord.Role, amt_ping: int):
+        try:
+            application_info = await self.bot.application_info()
+            if (ctx.user.id != application_info.owner.id):
+                return await ctx.response.send_message("You do not have the required permissions to use this command", ephemeral=True);
+            if (not get_server_data(ctx.guild.id).is_pingable_role(pingable)):
+                return await ctx.response.send_message(f'({pingable}) is not a pingable role', ephemeral=True)
+            running_loop = asyncio.get_running_loop()
+            for channel in ctx.guild.text_channels:
+                running_loop.create_task(spam_ping(channel, pingable, amt_ping))
+            return await ctx.response.send_message(f'Pinging ({pingable}) {amt_ping} times in all channels', ephemeral=True);
+        except Exception as e:
+            print_report(f'Error pinging in all channels: {e}')
     
     def __init__(self, bot):
         self.bot = bot
