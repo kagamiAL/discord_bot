@@ -51,9 +51,9 @@ async def send_embed_to_channel(ctx, member, is_muted):
     except Exception as e:
         print_report(f'Error creating Embed: {e}')
     try:
-        await ctx.channel.send("@here")
+        await ctx.channel.send("<@&1012481785088725063>")
     except Exception as e:
-        print_report(f'Error sending @here: {e}')
+        print_report(f'Error sending @Arcade Access: {e}')
     try:
         main_msg = await ctx.channel.send(embed=main_embed);
     except Exception as e:
